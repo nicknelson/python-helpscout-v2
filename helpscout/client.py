@@ -177,12 +177,13 @@ class HelpScout:
         headers = self._authentication_headers()
         logger.debug('Request: %s %s' % (method, url))
         r = getattr(requests, method)(url, headers=headers, json=data)
-        ok, status_code = r.ok, r.status_code
+        ok, status_code, r_headers = r.ok, r.status_code, r.headers
         logger.debug(
             'Received: %s %s (%s - %s)' % (method, url, ok, status_code))
         if status_code in (201, 204):
-            yield
+            yield r_headers
         elif ok:
+            yield r_headers
             response = r.json()
             for item in self._results_with_pagination(response, method):
                 yield item
